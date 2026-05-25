@@ -6,6 +6,7 @@ import com.example.empresasapi.application.services.CompaniaService;
 import com.example.empresasapi.application.services.EmpleadoService;
 import com.example.empresasapi.domain.entities.Compania;
 import com.example.empresasapi.domain.entities.Empleado;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,14 @@ public class CompaniaController {
     }
 
     @PostMapping
-    public ResponseEntity<Compania> create(@RequestBody CompaniaDTO dto) {
+    public ResponseEntity<Compania> create(@Valid @RequestBody CompaniaDTO dto) {
         logger.info("POST /api/companias");
         Compania created = companiaService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Compania> update(@PathVariable Long id, @RequestBody CompaniaDTO dto) {
+    public ResponseEntity<Compania> update(@PathVariable Long id, @Valid @RequestBody CompaniaDTO dto) {
         logger.info("PUT /api/companias/{}", id);
         return companiaService.update(id, dto)
                 .map(ResponseEntity::ok)
@@ -72,10 +73,9 @@ public class CompaniaController {
     }
 
     @PostMapping("/con-empleados")
-    public ResponseEntity<Compania> createConEmpleados(@RequestBody CompaniaConEmpleadosDTO dto) {
+    public ResponseEntity<Compania> createConEmpleados(@Valid @RequestBody CompaniaConEmpleadosDTO dto) {
         logger.info("POST /api/companias/con-empleados");
         Compania created = companiaService.createConEmpleados(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }
-

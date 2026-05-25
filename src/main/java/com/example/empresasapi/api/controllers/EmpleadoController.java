@@ -3,6 +3,7 @@ package com.example.empresasapi.api.controllers;
 import com.example.empresasapi.application.dtos.EmpleadoDTO;
 import com.example.empresasapi.application.services.EmpleadoService;
 import com.example.empresasapi.domain.entities.Empleado;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +37,14 @@ public class EmpleadoController {
     }
 
     @PostMapping
-    public ResponseEntity<Empleado> create(@RequestBody EmpleadoDTO dto) {
+    public ResponseEntity<Empleado> create(@Valid @RequestBody EmpleadoDTO dto) {
         logger.info("POST /api/empleados");
         Empleado created = empleadoService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Empleado> update(@PathVariable Long id, @RequestBody EmpleadoDTO dto) {
+    public ResponseEntity<Empleado> update(@PathVariable Long id, @Valid @RequestBody EmpleadoDTO dto) {
         logger.info("PUT /api/empleados/{}", id);
         return empleadoService.update(id, dto)
                 .map(ResponseEntity::ok)
@@ -59,4 +60,3 @@ public class EmpleadoController {
                 : ResponseEntity.notFound().build();
     }
 }
-
