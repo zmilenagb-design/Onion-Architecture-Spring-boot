@@ -42,31 +42,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. Extraer el token (quitar el prefijo "Bearer ")
         final String jwt = authHeader.substring(7);
 
-        // 4. Extraer el username del token
-        final String username = jwtService.extractUsername(jwt);
+        try {
+            // 4. Extraer el username del token
+            final String username = jwtService.extractUsername(jwt);
 
-        // 5. Si hay username y el usuario aún no está autenticado en este request
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // 5. Si hay username y el usuario aún no está autenticado en este request
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // 6. Cargar el usuario desde la base de datos
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                // 6. Cargar el usuario desde la base de datos
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            // 7. Validar que el token sea válido para este usuario
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+                // 7. Validar que el token sea válido para este usuario
+                if (jwtService.isTokenValid(jwt, userDetails)) {
 
-                // 8. Crear el objeto de autenticación de Spring Security
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,                        // Sin credenciales (ya validamos con JWT)
-                        userDetails.getAuthorities() // Roles del usuario
-                );
+                    // 8. Crear el objeto de autenticación de Spring Security
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,                        // Sin credenciales (ya validamos con JWT)
+                            userDetails.getAuthorities() // Roles del usuario
+                    );
 
-                // 9. Agregar detalles del request (IP, session, etc.)
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // 9. Agregar detalles del request (IP, session, etc.)
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // 10. Registrar la autenticación en el contexto de seguridad
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // 10. Registrar la autenticación en el contexto de seguridad
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // Token inválido, expirado o malformado — dejar pasar sin autenticar
+            // Spring Security retornará 401 automáticamente
+            SecurityContextHolder.clearContext();
         }
 
         // 11. Continuar con el siguiente filtro en la cadena
