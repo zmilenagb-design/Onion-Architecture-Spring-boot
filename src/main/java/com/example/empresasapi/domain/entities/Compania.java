@@ -1,11 +1,13 @@
 package com.example.empresasapi.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "companias")
+@JsonPropertyOrder({"id", "nombre", "direccion", "telefono", "fechaCreacion", "empleados"})
 public class Compania {
 
     @Id

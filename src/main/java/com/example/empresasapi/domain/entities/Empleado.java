@@ -1,9 +1,12 @@
 package com.example.empresasapi.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "empleados")
+@JsonPropertyOrder({"id", "nombre", "apellido", "correo", "cargo", "salario"})
 public class Empleado {
 
     @Id
@@ -27,7 +30,7 @@ public class Empleado {
 
     @ManyToOne
     @JoinColumn(name = "compania_id", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @JsonIgnore
     private Compania compania;
 
     // Getters y Setters

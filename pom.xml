@@ -78,10 +78,17 @@
             <version>2.8.9</version>
         </dependency>
 
-        <!-- Tests -->
+        <!-- Tests: JUnit 5 + Mockito -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- H2: BD en memoria para pruebas de integración -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
 

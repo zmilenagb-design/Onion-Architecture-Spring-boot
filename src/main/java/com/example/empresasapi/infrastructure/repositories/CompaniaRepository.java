@@ -45,4 +45,13 @@ public class CompaniaRepository implements ICompaniaRepository {
                         : entityManager.merge(compania)
         );
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        Long count = entityManager
+                .createQuery("SELECT COUNT(c) FROM Compania c WHERE c.id = :id", Long.class)
+                .setParameter("id", id)
+                .getSingleResult();
+        return count > 0;
+    }
 }

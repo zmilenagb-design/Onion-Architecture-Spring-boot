@@ -1,5 +1,6 @@
 package com.example.empresasapi.api.controllers;
 
+import com.example.empresasapi.application.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,15 @@ public class GlobalExceptionHandler {
         );
         logger.warn("Error de validación: {}", errores);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
+    }
+
+    // Captura violaciones de reglas de negocio (correo duplicado, compañía inexistente, etc.)
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException ex) {
+        logger.warn("Regla de negocio violada - campo: {} mensaje: {}", ex.getCampo(), ex.getMessage());
+        Map<String, String> error = new HashMap<>();
+        error.put(ex.getCampo(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(RuntimeException.class)

@@ -9,4 +9,5 @@ public interface ICompaniaRepository {
     Optional<Compania> findById(Long id);
     Compania save(Compania compania);
     void delete(Compania compania);
+    boolean existsById(Long id);
 }

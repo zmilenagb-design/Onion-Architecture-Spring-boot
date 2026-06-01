@@ -2,8 +2,10 @@ package com.example.empresasapi.api.controllers;
 
 import com.example.empresasapi.application.dtos.CompaniaConEmpleadosDTO;
 import com.example.empresasapi.application.dtos.CompaniaDTO;
+import com.example.empresasapi.application.dtos.PaginadoDTO;
 import com.example.empresasapi.application.services.CompaniaService;
 import com.example.empresasapi.application.services.EmpleadoService;
+import com.example.empresasapi.application.services.NotificacionService;
 import com.example.empresasapi.domain.entities.Compania;
 import com.example.empresasapi.domain.entities.Empleado;
 import jakarta.validation.Valid;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/companias")
@@ -27,6 +30,9 @@ public class CompaniaController {
 
     @Autowired
     private EmpleadoService empleadoService;
+
+    @Autowired
+    private NotificacionService notificacionService;
 
     @GetMapping
     public ResponseEntity<List<Compania>> getAll() {
@@ -67,9 +73,12 @@ public class CompaniaController {
     }
 
     @GetMapping("/{id}/empleados")
-    public ResponseEntity<List<Empleado>> getEmpleados(@PathVariable Long id) {
-        logger.info("GET /api/companias/{}/empleados", id);
-        return ResponseEntity.ok(empleadoService.getByCompaniaId(id));
+    public ResponseEntity<PaginadoDTO<Empleado>> getEmpleados(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "1") int pagina,
+            @RequestParam(defaultValue = "10") int tamano) {
+        logger.info("GET /api/companias/{}/empleados?pagina={}&tamano={}", id, pagina, tamano);
+        return ResponseEntity.ok(empleadoService.getByCompaniaPaged(id, pagina, tamano));
     }
 
     @PostMapping("/con-empleados")
@@ -77,5 +86,14 @@ public class CompaniaController {
         logger.info("POST /api/companias/con-empleados");
         Compania created = companiaService.createConEmpleados(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    // MÓDULO 2 — Reporte asíncrono
+    @GetMapping("/{id}/reporte")
+    public ResponseEntity<String> generarReporte(@PathVariable Long id) throws Exception {
+        logger.info("GET /api/companias/{}/reporte", id);
+        CompletableFuture<String> futuro = notificacionService.generarReporteEmpleados(id);
+        String resultado = futuro.get();
+        return ResponseEntity.ok(resultado);
     }
 }

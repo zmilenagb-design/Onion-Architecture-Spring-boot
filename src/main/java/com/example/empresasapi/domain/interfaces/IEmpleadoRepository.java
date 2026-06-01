@@ -10,4 +10,13 @@ public interface IEmpleadoRepository {
     List<Empleado> findByCompaniaId(Long companiaId);
     Empleado save(Empleado empleado);
     void delete(Empleado empleado);
+
+    // Nuevos para Módulo 1
+    void saveAll(List<Empleado> empleados);
+    void deleteAllByIds(List<Long> ids);
+    List<Empleado> findPaged(int pagina, int tamano, String orden, String dir, String buscar);
+    long countFiltered(String buscar);
+    List<Empleado> findByCompaniaPaged(Long companiaId, int pagina, int tamano);
+    long countByCompaniaId(Long companiaId);
+    boolean existsByCorreo(String correo);
 }
