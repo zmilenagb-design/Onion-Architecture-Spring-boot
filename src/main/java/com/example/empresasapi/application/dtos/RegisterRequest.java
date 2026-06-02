@@ -27,4 +27,8 @@ public class RegisterRequest {
 
     @NotNull(message = "El rol es obligatorio")
     private Rol rol;
+
+    private Long companiaId;
+
+    private Double limiteSalario;
 }

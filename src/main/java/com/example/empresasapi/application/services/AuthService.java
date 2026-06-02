@@ -1,5 +1,6 @@
 package com.example.empresasapi.application.services;
 
+
 import com.example.empresasapi.application.dtos.AuthResponse;
 import com.example.empresasapi.application.dtos.LoginRequest;
 import com.example.empresasapi.application.dtos.RegisterRequest;
@@ -11,10 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class    AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final JwtService jwtService;
@@ -39,15 +42,20 @@ public class AuthService {
         Usuario usuario = Usuario.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // BCrypt
+                .password(passwordEncoder.encode(request.getPassword()))
                 .rol(request.getRol())
+                .companiaId(request.getCompaniaId())
+                .limiteSalario(request.getLimiteSalario())
                 .build();
 
         // 4. Guardar el usuario en la BD
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         // 5. Generar el token JWT para el nuevo usuario
-        String token = jwtService.generateToken(usuarioGuardado);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("companiaId", usuarioGuardado.getCompaniaId());
+        extraClaims.put("limiteSalario", usuarioGuardado.getLimiteSalario());
+        String token = jwtService.generateToken(extraClaims, usuarioGuardado);
 
         // 6. Retornar la respuesta con el token e info del usuario
         return AuthResponse.builder()
@@ -77,7 +85,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // 3. Generar el token JWT
-        String token = jwtService.generateToken(usuario);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("companiaId", usuario.getCompaniaId());
+        extraClaims.put("limiteSalario", usuario.getLimiteSalario());
+        String token = jwtService.generateToken(extraClaims, usuario);
 
         // 4. Retornar la respuesta con el token e info del usuario
         return AuthResponse.builder()

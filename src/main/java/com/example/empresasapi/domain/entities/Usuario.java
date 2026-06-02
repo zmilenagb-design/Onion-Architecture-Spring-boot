@@ -44,6 +44,12 @@ public class Usuario implements UserDetails {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "compania_id")
+    private Long companiaId;
+
+    @Column(name = "limite_salario")
+    private Double limiteSalario;
+
     // ─── Métodos de UserDetails ─────────────────────────────────────────────
 
     // Le dice a Spring Security qué permisos/roles tiene este usuario

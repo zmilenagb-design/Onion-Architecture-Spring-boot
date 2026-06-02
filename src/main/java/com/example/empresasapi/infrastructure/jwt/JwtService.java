@@ -54,6 +54,11 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extrae un claim personalizado del token por su nombre
+    public Object extractClaim(String token, String claimName) {
+        return extractAllClaims(token).get(claimName);
+    }
+
     // ─── Métodos privados ────────────────────────────────────────────────────
 
     // Extrae un claim específico del token usando una función

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,13 +42,19 @@ public class EmpleadoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Política LimiteSalario — el salario no puede superar el claim del token
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or " +
+            "(#dto.salario == null or " +
+            "@empleadoSecurity.puedeAsignarSalario(#dto.salario, authentication))")
     public ResponseEntity<Empleado> create(@Valid @RequestBody EmpleadoDTO dto) {
         logger.info("POST /api/empleados");
         return ResponseEntity.status(HttpStatus.CREATED).body(empleadoService.create(dto));
     }
 
+    // Política Ownership — solo el dueño o ADMIN puede editar
     @PutMapping("/{id}")
+    @PreAuthorize("@empleadoSecurity.isOwner(#id, authentication)")
     public ResponseEntity<Empleado> update(@PathVariable Long id, @Valid @RequestBody EmpleadoDTO dto) {
         logger.info("PUT /api/empleados/{}", id);
         return empleadoService.update(id, dto)
@@ -55,7 +62,9 @@ public class EmpleadoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Política Ownership — solo el dueño o ADMIN puede parchear
     @PatchMapping("/{id}")
+    @PreAuthorize("@empleadoSecurity.isOwner(#id, authentication)")
     public ResponseEntity<Empleado> patch(@PathVariable Long id, @Valid @RequestBody EmpleadoPatchDTO dto) {
         logger.info("PATCH /api/empleados/{}", id);
         return empleadoService.patch(id, dto)
@@ -63,7 +72,9 @@ public class EmpleadoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Política Ownership — solo el dueño o ADMIN puede eliminar
     @DeleteMapping("/{id}")
+    @PreAuthorize("@empleadoSecurity.isOwner(#id, authentication)")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         logger.info("DELETE /api/empleados/{}", id);
         return empleadoService.delete(id)
